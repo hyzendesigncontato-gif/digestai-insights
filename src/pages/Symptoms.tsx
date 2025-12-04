@@ -140,22 +140,22 @@ export default function Symptoms() {
 
   return (
     <AppLayout>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 animate-fade-in">
+        <div className="flex flex-col gap-4 animate-fade-in">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-3">
-              <Activity className="w-8 h-8 text-primary" />
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold flex items-center gap-2 sm:gap-3">
+              <Activity className="w-6 h-6 sm:w-8 sm:h-8 text-primary flex-shrink-0" />
               Meus Sintomas
             </h1>
-            <p className="text-muted-foreground mt-1">
+            <p className="text-muted-foreground mt-1 text-sm sm:text-base">
               Registre e acompanhe seus sintomas digestivos
             </p>
           </div>
           
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="gradient">
+              <Button variant="gradient" className="w-full sm:w-auto">
                 <Plus className="w-4 h-4 mr-2" />
                 Registrar Sintoma
               </Button>
@@ -269,46 +269,46 @@ export default function Symptoms() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 animate-fade-in stagger-1">
+        <div className="grid grid-cols-3 gap-2 sm:gap-4 animate-fade-in stagger-1">
           <Card className="card-metric">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Total de Registros</p>
-                  <p className="text-3xl font-bold">{symptoms.length}</p>
+            <CardContent className="p-3 sm:pt-6 sm:p-6">
+              <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-2">
+                <div className="text-center sm:text-left">
+                  <p className="text-xs sm:text-sm text-muted-foreground">Registros</p>
+                  <p className="text-xl sm:text-3xl font-bold">{symptoms.length}</p>
                 </div>
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                  <TrendingUp className="w-6 h-6 text-primary" />
+                <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <TrendingUp className="w-4 h-4 sm:w-6 sm:h-6 text-primary" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <Card className="card-metric">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Intensidade Média</p>
-                  <p className="text-3xl font-bold">{avgIntensity}/10</p>
+            <CardContent className="p-3 sm:pt-6 sm:p-6">
+              <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-2">
+                <div className="text-center sm:text-left">
+                  <p className="text-xs sm:text-sm text-muted-foreground">Intensidade</p>
+                  <p className="text-xl sm:text-3xl font-bold">{avgIntensity}</p>
                 </div>
-                <div className="w-12 h-12 rounded-xl bg-warning/10 flex items-center justify-center">
-                  <AlertTriangle className="w-6 h-6 text-warning" />
+                <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-xl bg-warning/10 flex items-center justify-center">
+                  <AlertTriangle className="w-4 h-4 sm:w-6 sm:h-6 text-warning" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <Card className="card-metric">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Mais Frequente</p>
-                  <p className="text-xl font-bold truncate">
-                    {mostFrequentType ? symptomTypeLabels[mostFrequentType] : '-'}
+            <CardContent className="p-3 sm:pt-6 sm:p-6">
+              <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-2">
+                <div className="text-center sm:text-left min-w-0">
+                  <p className="text-xs sm:text-sm text-muted-foreground">Frequente</p>
+                  <p className="text-sm sm:text-xl font-bold truncate">
+                    {mostFrequentType ? symptomTypeLabels[mostFrequentType].split(' ')[0] : '-'}
                   </p>
                 </div>
-                <div className="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center">
-                  <Activity className="w-6 h-6 text-secondary" />
+                <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-xl bg-secondary/10 flex items-center justify-center">
+                  <Activity className="w-4 h-4 sm:w-6 sm:h-6 text-secondary" />
                 </div>
               </div>
             </CardContent>
@@ -317,24 +317,24 @@ export default function Symptoms() {
 
         {/* Filters */}
         <Card className="animate-fade-in stagger-2">
-          <CardContent className="pt-6">
-            <div className="flex flex-col sm:flex-row gap-4">
+          <CardContent className="p-3 sm:pt-6 sm:p-6">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
-                  placeholder="Buscar sintomas..."
+                  placeholder="Buscar..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 input-focus"
+                  className="pl-10 input-focus h-9 sm:h-10 text-sm"
                 />
               </div>
               <Select value={filterIntensity} onValueChange={setFilterIntensity}>
-                <SelectTrigger className="w-full sm:w-[180px]">
-                  <Filter className="w-4 h-4 mr-2" />
-                  <SelectValue placeholder="Filtrar por intensidade" />
+                <SelectTrigger className="w-full sm:w-[160px] h-9 sm:h-10 text-sm">
+                  <Filter className="w-4 h-4 mr-2 flex-shrink-0" />
+                  <SelectValue placeholder="Filtrar" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Todas intensidades</SelectItem>
+                  <SelectItem value="all">Todas</SelectItem>
                   <SelectItem value="low">Leve (1-3)</SelectItem>
                   <SelectItem value="medium">Moderado (4-6)</SelectItem>
                   <SelectItem value="high">Intenso (7-10)</SelectItem>

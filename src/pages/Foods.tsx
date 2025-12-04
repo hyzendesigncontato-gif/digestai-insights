@@ -133,46 +133,46 @@ export default function Foods() {
 
   return (
     <AppLayout>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* Header */}
         <div className="animate-fade-in">
-          <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-3">
-            <Apple className="w-8 h-8 text-primary" />
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold flex items-center gap-2 sm:gap-3">
+            <Apple className="w-6 h-6 sm:w-8 sm:h-8 text-primary flex-shrink-0" />
             Alimentos Seguros
           </h1>
-          <p className="text-muted-foreground mt-1">
-            Lista personalizada baseada no seu perfil digestivo
+          <p className="text-muted-foreground mt-1 text-sm sm:text-base">
+            Lista personalizada baseada no seu perfil
           </p>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-4 animate-fade-in stagger-1">
+        <div className="grid grid-cols-3 gap-2 sm:gap-4 animate-fade-in stagger-1">
           <Card className="card-metric bg-success/5 border-success/20">
-            <CardContent className="p-4 text-center">
-              <div className="w-10 h-10 rounded-full bg-success/20 flex items-center justify-center mx-auto mb-2">
-                <CheckCircle className="w-5 h-5 text-success" />
+            <CardContent className="p-2 sm:p-4 text-center">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-success/20 flex items-center justify-center mx-auto mb-1 sm:mb-2">
+                <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-success" />
               </div>
-              <p className="text-2xl font-bold text-success">{safeFoods.length}</p>
+              <p className="text-lg sm:text-2xl font-bold text-success">{safeFoods.length}</p>
               <p className="text-xs text-muted-foreground">Seguros</p>
             </CardContent>
           </Card>
 
           <Card className="card-metric bg-warning/5 border-warning/20">
-            <CardContent className="p-4 text-center">
-              <div className="w-10 h-10 rounded-full bg-warning/20 flex items-center justify-center mx-auto mb-2">
-                <AlertTriangle className="w-5 h-5 text-warning" />
+            <CardContent className="p-2 sm:p-4 text-center">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-warning/20 flex items-center justify-center mx-auto mb-1 sm:mb-2">
+                <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 text-warning" />
               </div>
-              <p className="text-2xl font-bold text-warning">{moderateFoods.length}</p>
-              <p className="text-xs text-muted-foreground">Moderados</p>
+              <p className="text-lg sm:text-2xl font-bold text-warning">{moderateFoods.length}</p>
+              <p className="text-xs text-muted-foreground">Moderado</p>
             </CardContent>
           </Card>
 
           <Card className="card-metric bg-destructive/5 border-destructive/20">
-            <CardContent className="p-4 text-center">
-              <div className="w-10 h-10 rounded-full bg-destructive/20 flex items-center justify-center mx-auto mb-2">
-                <XCircle className="w-5 h-5 text-destructive" />
+            <CardContent className="p-2 sm:p-4 text-center">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-destructive/20 flex items-center justify-center mx-auto mb-1 sm:mb-2">
+                <XCircle className="w-4 h-4 sm:w-5 sm:h-5 text-destructive" />
               </div>
-              <p className="text-2xl font-bold text-destructive">{avoidFoods.length}</p>
+              <p className="text-lg sm:text-2xl font-bold text-destructive">{avoidFoods.length}</p>
               <p className="text-xs text-muted-foreground">Evitar</p>
             </CardContent>
           </Card>
@@ -180,22 +180,23 @@ export default function Foods() {
 
         {/* Filters */}
         <Card className="animate-fade-in stagger-2">
-          <CardContent className="pt-6">
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="relative flex-1">
+          <CardContent className="p-3 sm:pt-6 sm:p-6">
+            <div className="flex flex-col gap-3">
+              <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   placeholder="Buscar alimentos..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 input-focus"
+                  className="pl-10 input-focus h-9 sm:h-10 text-sm"
                 />
               </div>
-              <div className="flex gap-2 flex-wrap">
+              <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
                 <Button
                   variant={selectedCategory === 'all' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setSelectedCategory('all')}
+                  className="flex-shrink-0 text-xs sm:text-sm"
                 >
                   Todos
                 </Button>
@@ -205,6 +206,7 @@ export default function Foods() {
                     variant={selectedCategory === category ? 'default' : 'outline'}
                     size="sm"
                     onClick={() => setSelectedCategory(category)}
+                    className="flex-shrink-0 text-xs sm:text-sm"
                   >
                     {category}
                   </Button>
@@ -216,22 +218,22 @@ export default function Foods() {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="animate-fade-in stagger-3">
-          <TabsList className="grid w-full grid-cols-4 h-12">
-            <TabsTrigger value="all" className="gap-2">
-              Todos
-              <Badge variant="secondary" className="ml-1">{allFoods.length}</Badge>
+          <TabsList className="grid w-full grid-cols-4 h-10 sm:h-12">
+            <TabsTrigger value="all" className="gap-1 sm:gap-2 text-xs sm:text-sm px-1 sm:px-3">
+              <span className="hidden sm:inline">Todos</span>
+              <Badge variant="secondary" className="text-xs">{allFoods.length}</Badge>
             </TabsTrigger>
-            <TabsTrigger value="safe" className="gap-2">
-              <CheckCircle className="w-4 h-4 text-success" />
-              Seguros
+            <TabsTrigger value="safe" className="gap-1 sm:gap-2 text-xs sm:text-sm px-1 sm:px-3">
+              <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-success" />
+              <span className="hidden sm:inline">Seguros</span>
             </TabsTrigger>
-            <TabsTrigger value="moderate" className="gap-2">
-              <AlertTriangle className="w-4 h-4 text-warning" />
-              Moderados
+            <TabsTrigger value="moderate" className="gap-1 sm:gap-2 text-xs sm:text-sm px-1 sm:px-3">
+              <AlertTriangle className="w-3 h-3 sm:w-4 sm:h-4 text-warning" />
+              <span className="hidden sm:inline">Moderados</span>
             </TabsTrigger>
-            <TabsTrigger value="avoid" className="gap-2">
-              <XCircle className="w-4 h-4 text-destructive" />
-              Evitar
+            <TabsTrigger value="avoid" className="gap-1 sm:gap-2 text-xs sm:text-sm px-1 sm:px-3">
+              <XCircle className="w-3 h-3 sm:w-4 sm:h-4 text-destructive" />
+              <span className="hidden sm:inline">Evitar</span>
             </TabsTrigger>
           </TabsList>
 
@@ -278,15 +280,14 @@ export default function Foods() {
 
         {/* Info Banner */}
         <Card className="bg-primary/5 border-primary/20 animate-fade-in">
-          <CardContent className="flex items-start gap-4 p-6">
-            <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center flex-shrink-0">
-              <Info className="w-5 h-5 text-primary" />
+          <CardContent className="flex items-start gap-3 sm:gap-4 p-4 sm:p-6">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-primary/20 flex items-center justify-center flex-shrink-0">
+              <Info className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
             </div>
-            <div>
-              <h3 className="font-semibold mb-1">Como funciona a classificação?</h3>
-              <p className="text-sm text-muted-foreground">
-                A lista de alimentos é atualizada automaticamente com base nos seus registros de sintomas e 
-                consumo alimentar. Quanto mais você registra, mais precisa fica a análise do DigestAI.
+            <div className="min-w-0">
+              <h3 className="font-semibold mb-1 text-sm sm:text-base">Como funciona?</h3>
+              <p className="text-xs sm:text-sm text-muted-foreground">
+                A lista é atualizada com base nos seus registros. Quanto mais você registra, mais precisa fica a análise.
               </p>
             </div>
           </CardContent>

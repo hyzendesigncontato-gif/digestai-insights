@@ -44,25 +44,25 @@ export default function Reports() {
     <AppLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 animate-fade-in">
+        <div className="flex flex-col gap-4 animate-fade-in">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-3">
-              <FileText className="w-8 h-8 text-primary" />
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold flex items-center gap-2 sm:gap-3">
+              <FileText className="w-6 h-6 sm:w-8 sm:h-8 text-primary flex-shrink-0" />
               Relatórios
             </h1>
-            <p className="text-muted-foreground mt-1">
+            <p className="text-muted-foreground mt-1 text-sm sm:text-base">
               Análises detalhadas da sua saúde digestiva
             </p>
           </div>
           
           <div className="flex gap-2">
-            <Button variant="outline">
-              <Share2 className="w-4 h-4 mr-2" />
-              Compartilhar
+            <Button variant="outline" size="sm" className="flex-1 sm:flex-none">
+              <Share2 className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Compartilhar</span>
             </Button>
-            <Button variant="gradient">
-              <Download className="w-4 h-4 mr-2" />
-              Baixar PDF
+            <Button variant="gradient" size="sm" className="flex-1 sm:flex-none">
+              <Download className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Baixar</span> PDF
             </Button>
           </div>
         </div>
