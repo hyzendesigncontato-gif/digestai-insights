@@ -116,23 +116,21 @@ export default function Chat() {
     <AppLayout>
       <div className="h-[calc(100vh-6rem)] flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between mb-4 animate-fade-in">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-lg">
-              <Sparkles className="w-6 h-6 text-white" />
+        <div className="flex items-center justify-between mb-4 animate-fade-in gap-2">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-lg flex-shrink-0">
+              <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </div>
-            <div>
-              <h1 className="text-xl font-bold">Chat DigestAI</h1>
-              <p className="text-sm text-muted-foreground">Seu assistente de saúde digestiva</p>
+            <div className="min-w-0">
+              <h1 className="text-lg sm:text-xl font-bold truncate">Chat DigestAI</h1>
+              <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">Seu assistente de saúde digestiva</p>
             </div>
           </div>
           
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={handleNewChat}>
-              <Plus className="w-4 h-4 mr-2" />
-              Nova Conversa
-            </Button>
-          </div>
+          <Button variant="outline" size="sm" onClick={handleNewChat} className="flex-shrink-0">
+            <Plus className="w-4 h-4 sm:mr-2" />
+            <span className="hidden sm:inline">Nova Conversa</span>
+          </Button>
         </div>
 
         {/* Chat Container */}
@@ -201,13 +199,13 @@ export default function Chat() {
           </ScrollArea>
 
           {/* Quick Suggestions */}
-          <div className="px-4 py-2 border-t border-border">
-            <div className="flex flex-wrap gap-2 max-w-3xl mx-auto">
-              {quickSuggestions.map((suggestion, index) => (
+          <div className="px-3 sm:px-4 py-2 border-t border-border overflow-x-auto">
+            <div className="flex gap-2 max-w-3xl mx-auto pb-1">
+              {quickSuggestions.slice(0, 4).map((suggestion, index) => (
                 <button
                   key={index}
                   onClick={() => handleQuickSuggestion(suggestion)}
-                  className="px-3 py-1.5 text-xs rounded-full bg-muted hover:bg-primary/10 hover:text-primary border border-border hover:border-primary/30 transition-all duration-200"
+                  className="px-3 py-1.5 text-xs rounded-full bg-muted hover:bg-primary/10 hover:text-primary border border-border hover:border-primary/30 transition-all duration-200 whitespace-nowrap flex-shrink-0"
                 >
                   {suggestion}
                 </button>
@@ -216,7 +214,7 @@ export default function Chat() {
           </div>
 
           {/* Input Area */}
-          <div className="p-4 border-t border-border">
+          <div className="p-3 sm:p-4 border-t border-border">
             <div className="max-w-3xl mx-auto">
               <div className="flex gap-2">
                 <Input
@@ -224,24 +222,25 @@ export default function Chat() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
-                  placeholder="Digite sua dúvida ou descreva seus sintomas..."
-                  className="flex-1 h-12 input-focus"
+                  placeholder="Digite sua dúvida..."
+                  className="flex-1 h-10 sm:h-12 input-focus text-sm"
                   disabled={isLoading}
                 />
                 <Button
                   onClick={handleSend}
                   disabled={!input.trim() || isLoading}
                   variant="gradient"
-                  size="icon-lg"
+                  size="icon"
+                  className="h-10 w-10 sm:h-12 sm:w-12"
                 >
                   {isLoading ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
                   ) : (
-                    <Send className="w-5 h-5" />
+                    <Send className="w-4 h-4 sm:w-5 sm:h-5" />
                   )}
                 </Button>
               </div>
-              <p className="text-xs text-muted-foreground text-center mt-2">
+              <p className="text-xs text-muted-foreground text-center mt-2 hidden sm:block">
                 O DigestAI é um assistente informativo e não substitui consulta médica.
               </p>
             </div>

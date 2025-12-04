@@ -83,39 +83,39 @@ export default function Settings() {
 
   return (
     <AppLayout>
-      <div className="space-y-6 max-w-4xl">
+      <div className="space-y-4 sm:space-y-6 max-w-4xl">
         {/* Header */}
         <div className="animate-fade-in">
-          <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-3">
-            <SettingsIcon className="w-8 h-8 text-primary" />
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold flex items-center gap-2 sm:gap-3">
+            <SettingsIcon className="w-6 h-6 sm:w-8 sm:h-8 text-primary flex-shrink-0" />
             Configurações
           </h1>
-          <p className="text-muted-foreground mt-1">
-            Gerencie suas preferências e informações da conta
+          <p className="text-muted-foreground mt-1 text-sm sm:text-base">
+            Gerencie suas preferências
           </p>
         </div>
 
         <Tabs defaultValue="profile" className="animate-fade-in stagger-1">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 h-auto gap-2 bg-transparent p-0">
-            <TabsTrigger value="profile" className="data-[state=active]:bg-primary data-[state=active]:text-white gap-2">
-              <User className="w-4 h-4" />
-              <span className="hidden sm:inline">Perfil</span>
+          <TabsList className="flex w-full h-auto gap-1 bg-muted/50 p-1 rounded-lg overflow-x-auto">
+            <TabsTrigger value="profile" className="flex-1 min-w-0 data-[state=active]:bg-primary data-[state=active]:text-white gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 py-2">
+              <User className="w-4 h-4 flex-shrink-0" />
+              <span className="hidden xs:inline truncate">Perfil</span>
             </TabsTrigger>
-            <TabsTrigger value="security" className="data-[state=active]:bg-primary data-[state=active]:text-white gap-2">
-              <Shield className="w-4 h-4" />
-              <span className="hidden sm:inline">Segurança</span>
+            <TabsTrigger value="security" className="flex-1 min-w-0 data-[state=active]:bg-primary data-[state=active]:text-white gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 py-2">
+              <Shield className="w-4 h-4 flex-shrink-0" />
+              <span className="hidden xs:inline truncate">Segurança</span>
             </TabsTrigger>
-            <TabsTrigger value="dietary" className="data-[state=active]:bg-primary data-[state=active]:text-white gap-2">
-              <Utensils className="w-4 h-4" />
-              <span className="hidden sm:inline">Alimentar</span>
+            <TabsTrigger value="dietary" className="flex-1 min-w-0 data-[state=active]:bg-primary data-[state=active]:text-white gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 py-2">
+              <Utensils className="w-4 h-4 flex-shrink-0" />
+              <span className="hidden sm:inline truncate">Alimentar</span>
             </TabsTrigger>
-            <TabsTrigger value="notifications" className="data-[state=active]:bg-primary data-[state=active]:text-white gap-2">
-              <Bell className="w-4 h-4" />
-              <span className="hidden sm:inline">Notificações</span>
+            <TabsTrigger value="notifications" className="flex-1 min-w-0 data-[state=active]:bg-primary data-[state=active]:text-white gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 py-2">
+              <Bell className="w-4 h-4 flex-shrink-0" />
+              <span className="hidden sm:inline truncate">Notificações</span>
             </TabsTrigger>
-            <TabsTrigger value="appearance" className="data-[state=active]:bg-primary data-[state=active]:text-white gap-2">
-              <Palette className="w-4 h-4" />
-              <span className="hidden sm:inline">Aparência</span>
+            <TabsTrigger value="appearance" className="flex-1 min-w-0 data-[state=active]:bg-primary data-[state=active]:text-white gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 py-2">
+              <Palette className="w-4 h-4 flex-shrink-0" />
+              <span className="hidden sm:inline truncate">Aparência</span>
             </TabsTrigger>
           </TabsList>
 
