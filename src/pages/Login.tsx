@@ -177,7 +177,7 @@ export default function Login() {
 
         {/* Footer */}
         <p className="text-center text-sm text-muted-foreground mt-6 animate-fade-in stagger-3">
-          © 2024 DigestAI. Todos os direitos reservados.
+          © 2025 DigestAI. Todos os direitos reservados.
         </p>
       </div>
     </div>
