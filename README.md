@@ -10,6 +10,7 @@ Sistema inteligente de monitoramento de saúde digestiva com IA.
 - **IA:** N8N (Webhook + Automações)
 - **Email:** Resend
 - **Upload:** ImgBB
+- **PWA:** Vite PWA Plugin + Workbox
 
 ## 📋 Funcionalidades
 
@@ -23,6 +24,31 @@ Sistema inteligente de monitoramento de saúde digestiva com IA.
 - ✅ Sistema de notificações
 - ✅ Upload de foto de perfil
 - ✅ Configurações de preferências
+- ✅ **PWA - Instalável em qualquer dispositivo**
+- ✅ **Funciona offline**
+- ✅ **Atualizações automáticas**
+
+## 📱 PWA - Progressive Web App
+
+O DigestAI é um PWA completo que pode ser instalado em qualquer dispositivo!
+
+### Como Instalar
+
+**No Celular (Android/iOS):**
+- Android: Menu → "Instalar app"
+- iOS: Compartilhar → "Adicionar à Tela de Início"
+
+**No Computador:**
+- Chrome/Edge: Ícone de instalação na barra de endereço
+
+### Recursos PWA
+- 📲 Instalável como app nativo
+- 🔄 Atualizações automáticas
+- 📡 Funciona offline
+- ⚡ Cache inteligente
+- 🎨 Ícone personalizado
+
+📖 [Guia completo do PWA](docs/PWA_GUIDE.md)
 
 ## 🔧 Variáveis de Ambiente
 

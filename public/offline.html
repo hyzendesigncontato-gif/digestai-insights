@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DigestAI - Offline</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #2AAF23 0%, #09C400 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        .icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #2AAF23 0%, #09C400 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+        
+        h1 {
+            color: #1a1a1a;
+            font-size: 28px;
+            margin-bottom: 16px;
+            font-weight: 700;
+        }
+        
+        p {
+            color: #4a5568;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+        
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: #f0fdf4;
+            border: 2px solid #bbf7d0;
+            border-radius: 10px;
+            color: #166534;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+        
+        .pulse {
+            width: 12px;
+            height: 12px;
+            background: #ef4444;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+        
+        button {
+            background: linear-gradient(135deg, #2AAF23 0%, #09C400 100%);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .features {
+            margin-top: 32px;
+            text-align: left;
+        }
+        
+        .feature {
+            display: flex;
+            align-items: start;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .feature-icon {
+            width: 24px;
+            height: 24px;
+            background: #dcfce7;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        
+        .feature-text {
+            flex: 1;
+        }
+        
+        .feature-title {
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+        
+        .feature-desc {
+            font-size: 14px;
+            color: #718096;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">📡</div>
+        <h1>Você está offline</h1>
+        <p>Não foi possível conectar à internet. Algumas funcionalidades podem estar limitadas.</p>
+        
+        <div class="status">
+            <div class="pulse"></div>
+            <span>Sem conexão</span>
+        </div>
+        
+        <button onclick="window.location.reload()">
+            Tentar Novamente
+        </button>
+        
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">✅</div>
+                <div class="feature-text">
+                    <div class="feature-title">Dados Salvos</div>
+                    <p class="feature-desc">Seus dados já carregados continuam acessíveis</p>
+                </div>
+            </div>
+            
+            <div class="feature">
+                <div class="feature-icon">🔄</div>
+                <div class="feature-text">
+                    <div class="feature-title">Sincronização Automática</div>
+                    <p class="feature-desc">Tudo será sincronizado quando você voltar online</p>
+                </div>
+            </div>
+            
+            <div class="feature">
+                <div class="feature-icon">⚡</div>
+                <div class="feature-text">
+                    <div class="feature-title">App Instalado</div>
+                    <p class="feature-desc">O DigestAI funciona mesmo sem internet</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Verificar conexão a cada 5 segundos
+        setInterval(() => {
+            if (navigator.onLine) {
+                window.location.reload();
+            }
+        }, 5000);
+        
+        // Listener para mudança de status online
+        window.addEventListener('online', () => {
+            window.location.reload();
+        });
+    </script>
+</body>
+</html>

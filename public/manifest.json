@@ -1,0 +1,32 @@
+{
+  "name": "DigestAI - Sistema Intestinal Blindado",
+  "short_name": "DigestAI",
+  "description": "Plataforma inteligente para saúde intestinal com IA",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2AAF23",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon-site2.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-site2.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["health", "medical", "lifestyle"],
+  "screenshots": [
+    {
+      "src": "/logotipo-site.png",
+      "sizes": "540x720",
+      "type": "image/png"
+    }
+  ]
+}
