@@ -64,7 +64,7 @@ export function AppSidebar() {
         {/* Logo */}
         <div className="flex items-center gap-3 px-6 py-6 border-b border-sidebar-border">
           <div className="w-10 h-10 flex items-center justify-center">
-            <img src="/logo.png" alt="DigestAI" className="w-10 h-10 object-contain" />
+            <img src="/icon-site2.png" alt="DigestAI" className="w-10 h-10 object-contain" />
           </div>
           {!isCollapsed && (
             <div className="animate-fade-in">
