@@ -1,73 +1,86 @@
-# Welcome to your Lovable project
+# 🩺 DigestAI - Sistema Intestinal Blindado
 
-## Project info
+Sistema inteligente de monitoramento de saúde digestiva com IA.
 
-**URL**: https://lovable.dev/projects/3de7b64d-c6ca-4c55-b9d3-73b594a8490f
+## 🚀 Tecnologias
 
-## How can I edit this code?
+- **Frontend:** React + TypeScript + Vite
+- **UI:** TailwindCSS + Shadcn/ui
+- **Backend:** Supabase (PostgreSQL + Auth + Storage)
+- **IA:** N8N (Webhook + Automações)
+- **Email:** Resend
+- **Upload:** ImgBB
 
-There are several ways of editing your application.
+## 📋 Funcionalidades
 
-**Use Lovable**
+- ✅ Autenticação completa (Login/Logout)
+- ✅ Dashboard com métricas em tempo real
+- ✅ Chat com IA para análise de sintomas
+- ✅ Registro de sintomas e alimentos
+- ✅ Diário alimentar
+- ✅ Análise automática de intolerâncias
+- ✅ Geração de relatórios personalizados
+- ✅ Sistema de notificações
+- ✅ Upload de foto de perfil
+- ✅ Configurações de preferências
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/3de7b64d-c6ca-4c55-b9d3-73b594a8490f) and start prompting.
+## 🔧 Variáveis de Ambiente
 
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```env
+VITE_SUPABASE_URL=https://seu-projeto.supabase.co
+VITE_SUPABASE_ANON_KEY=sua-anon-key
+VITE_AI_WEBHOOK_URL=https://n8n.produtohub.store/webhook/agenteia-intestinal
 ```
 
-**Edit a file directly in GitHub**
+## 📦 Deploy na Vercel
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Opção 1: Deploy via Dashboard (Recomendado)
 
-**Use GitHub Codespaces**
+1. Acesse [vercel.com](https://vercel.com)
+2. Clique em **"Add New Project"**
+3. Importe seu repositório do GitHub
+4. A Vercel detecta automaticamente que é um projeto Vite
+5. Configure as **Environment Variables**:
+   ```
+   VITE_SUPABASE_URL=https://tsttphdoxjtdgqlrzlto.supabase.co
+   VITE_SUPABASE_ANON_KEY=sua-key-aqui
+   VITE_AI_WEBHOOK_URL=https://n8n.produtohub.store/webhook/agenteia-intestinal
+   ```
+6. Clique em **"Deploy"**
+7. Pronto! Seu app estará no ar em ~2 minutos 🚀
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Opção 2: Deploy via CLI
 
-## What technologies are used for this project?
+```bash
+# Instalar Vercel CLI
+npm i -g vercel
 
-This project is built with:
+# Login
+vercel login
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+# Deploy
+vercel
 
-## How can I deploy this project?
+# Deploy em produção
+vercel --prod
+```
 
-Simply open [Lovable](https://lovable.dev/projects/3de7b64d-c6ca-4c55-b9d3-73b594a8490f) and click on Share -> Publish.
+## 🛠️ Desenvolvimento Local
 
-## Can I connect a custom domain to my Lovable project?
+```bash
+# Instalar dependências
+npm install
 
-Yes, you can!
+# Rodar em desenvolvimento
+npm run dev
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+# Build para produção
+npm run build
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+# Preview do build
+npm run preview
+```
+
+## 📄 Licença
+
+© 2025 DigestAI. Todos os direitos reservados.

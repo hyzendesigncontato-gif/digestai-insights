@@ -4,7 +4,8 @@ import {
   MessageSquare, 
   FileText, 
   Activity, 
-  Apple, 
+  Apple,
+  Utensils,
   Settings, 
   LogOut,
   Menu,
@@ -21,6 +22,7 @@ const navItems = [
   { to: '/chat', icon: MessageSquare, label: 'Chat DigestAI' },
   { to: '/reports', icon: FileText, label: 'Relatórios' },
   { to: '/symptoms', icon: Activity, label: 'Meus Sintomas' },
+  { to: '/food-log', icon: Utensils, label: 'Diário Alimentar' },
   { to: '/foods', icon: Apple, label: 'Alimentos Seguros' },
   { to: '/settings', icon: Settings, label: 'Configurações' },
 ];
@@ -61,8 +63,8 @@ export function AppSidebar() {
       >
         {/* Logo */}
         <div className="flex items-center gap-3 px-6 py-6 border-b border-sidebar-border">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-lg">
-            <Sparkles className="w-5 h-5 text-white" />
+          <div className="w-10 h-10 flex items-center justify-center">
+            <img src="/logo.png" alt="DigestAI" className="w-10 h-10 object-contain" />
           </div>
           {!isCollapsed && (
             <div className="animate-fade-in">
@@ -109,11 +111,19 @@ export function AppSidebar() {
         <div className="p-4 border-t border-sidebar-border">
           {!isCollapsed && user && (
             <div className="flex items-center gap-3 mb-4 animate-fade-in">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
-                <span className="text-sm font-semibold text-sidebar-foreground">
-                  {user.fullName.charAt(0)}
-                </span>
-              </div>
+              {user.avatarUrl ? (
+                <img 
+                  src={user.avatarUrl} 
+                  alt={user.fullName}
+                  className="w-10 h-10 rounded-full object-cover border-2 border-primary/20"
+                />
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
+                  <span className="text-sm font-semibold text-sidebar-foreground">
+                    {user.fullName.charAt(0)}
+                  </span>
+                </div>
+              )}
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-sidebar-foreground truncate">
                   {user.fullName}

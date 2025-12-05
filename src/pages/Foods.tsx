@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { mockUserFoodStatus, mockFoods } from '@/data/mockData';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,22 +14,25 @@ import {
   AlertTriangle,
   XCircle,
   Info,
-  Sparkles
+  Sparkles,
+  Loader2
 } from 'lucide-react';
 import { UserFoodStatus } from '@/types';
 import { cn } from '@/lib/utils';
+import { useFoods } from '@/hooks/useFoods';
 
 export default function Foods() {
+  const { userFoodStatus, isLoading } = useFoods();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [activeTab, setActiveTab] = useState('all');
 
-  const categories = [...new Set(mockUserFoodStatus.map(f => f.food.category))];
+  const categories = [...new Set(userFoodStatus.map(f => f.food?.category).filter(Boolean))];
 
   const filterFoods = (status?: 'safe' | 'moderate' | 'avoid') => {
-    return mockUserFoodStatus.filter(food => {
-      const matchesSearch = food.food.name.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory = selectedCategory === 'all' || food.food.category === selectedCategory;
+    return userFoodStatus.filter(food => {
+      const matchesSearch = food.food?.name?.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesCategory = selectedCategory === 'all' || food.food?.category === selectedCategory;
       const matchesStatus = !status || food.status === status;
       return matchesSearch && matchesCategory && matchesStatus;
     });
@@ -78,6 +80,19 @@ export default function Foods() {
   const moderateFoods = filterFoods('moderate');
   const avoidFoods = filterFoods('avoid');
   const allFoods = filterFoods();
+
+  if (isLoading) {
+    return (
+      <AppLayout>
+        <div className="flex items-center justify-center h-[60vh]">
+          <div className="text-center">
+            <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
+            <p className="text-muted-foreground">Carregando alimentos...</p>
+          </div>
+        </div>
+      </AppLayout>
+    );
+  }
 
   const FoodCard = ({ item }: { item: UserFoodStatus }) => (
     <Card className="hover-lift group">

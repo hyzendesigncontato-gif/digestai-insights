@@ -7,20 +7,27 @@ export interface User {
   gender?: 'male' | 'female' | 'other';
   weight?: number;
   height?: number;
-  createdAt: string;
+  createdAt?: string;
+  created_at?: string;
 }
 
 export interface Symptom {
   id: string;
-  userId: string;
+  userId?: string;
+  user_id?: string;
   types: SymptomType[];
   intensity: number;
   datetime: string;
   duration?: string;
   painLocation?: string;
+  pain_location?: string;
   notes?: string;
   foodsConsumed?: FoodLog[];
-  createdAt: string;
+  foods_consumed?: any;
+  createdAt?: string;
+  created_at?: string;
+  updatedAt?: string;
+  updated_at?: string;
 }
 
 export type SymptomType = 
@@ -37,12 +44,19 @@ export type SymptomType =
 
 export interface FoodLog {
   id: string;
-  userId: string;
+  userId?: string;
+  user_id?: string;
   symptomId?: string;
-  foodName: string;
-  mealType: 'breakfast' | 'lunch' | 'dinner' | 'snack';
+  symptom_id?: string;
+  foodName?: string;
+  food_name?: string;
+  foodId?: string;
+  food_id?: string;
+  mealType?: 'breakfast' | 'lunch' | 'dinner' | 'snack';
+  meal_type?: 'breakfast' | 'lunch' | 'dinner' | 'snack';
   datetime: string;
-  createdAt: string;
+  createdAt?: string;
+  created_at?: string;
 }
 
 export interface Food {
@@ -55,13 +69,18 @@ export interface Food {
 
 export interface UserFoodStatus {
   id: string;
-  userId: string;
-  foodId: string;
+  userId?: string;
+  user_id?: string;
+  foodId?: string;
+  food_id?: string;
   food: Food;
   status: 'safe' | 'moderate' | 'avoid';
-  safetyScore: number;
+  safetyScore?: number;
+  safety_score?: number;
   aiNotes?: string;
-  updatedAt: string;
+  ai_notes?: string;
+  updatedAt?: string;
+  updated_at?: string;
 }
 
 export interface Message {

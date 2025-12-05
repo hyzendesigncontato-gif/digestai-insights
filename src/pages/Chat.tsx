@@ -15,11 +15,25 @@ import {
   Plus
 } from 'lucide-react';
 import { Message } from '@/types';
-import { mockMessages, quickSuggestions } from '@/data/mockData';
 import { cn } from '@/lib/utils';
+import { chatWithAI } from '@/config/ai';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
+import { useConversations } from '@/hooks/useConversations';
+
+const quickSuggestions = [
+  'O que posso comer hoje?',
+  'Estou com estufamento, o que significa?',
+  'Analise meus sintomas recentes',
+  'Gerar relatório completo',
+  'Quais alimentos devo evitar?',
+  'Criar plano alimentar para hoje',
+];
 
 export default function Chat() {
-  const [messages, setMessages] = useState<Message[]>(mockMessages);
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const { messages, conversationId, isLoading: loadingConversation, addMessage, newConversation } = useConversations();
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -63,32 +77,49 @@ export default function Chat() {
   };
 
   const handleSend = async () => {
-    if (!input.trim() || isLoading) return;
+    if (!input.trim() || isLoading || !user) return;
     
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      role: 'user',
-      content: input.trim(),
-      timestamp: new Date().toISOString(),
-    };
-    
-    setMessages(prev => [...prev, userMessage]);
+    const userMessageContent = input.trim();
     setInput('');
     setIsLoading(true);
     
-    // Simulate AI thinking
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    // Adiciona mensagem do usuário no Supabase
+    await addMessage('user', userMessageContent);
     
-    const aiResponse: Message = {
-      id: (Date.now() + 1).toString(),
-      role: 'assistant',
-      content: generateAIResponse(userMessage.content),
-      timestamp: new Date().toISOString(),
-    };
-    
-    setMessages(prev => [...prev, aiResponse]);
-    setIsLoading(false);
-    inputRef.current?.focus();
+    try {
+      // Chama o agente IA real via N8N
+      const response = await chatWithAI(
+        user.id,
+        userMessageContent,
+        conversationId || undefined,
+        {}
+      );
+      
+      // Adiciona resposta da IA no Supabase
+      await addMessage('assistant', response.message || 'Desculpe, não consegui processar sua mensagem.');
+      
+      // Se houver insights, pode criar notificações
+      if (response.insights && response.insights.length > 0) {
+        toast({
+          title: '💡 Novos insights disponíveis',
+          description: `O DigestAI identificou ${response.insights.length} insight(s) importante(s).`,
+        });
+      }
+    } catch (error) {
+      console.error('Error sending message to AI:', error);
+      
+      // Fallback: adiciona mensagem de erro
+      await addMessage('assistant', 'Desculpe, tive um problema ao processar sua mensagem. Por favor, tente novamente.');
+      
+      toast({
+        title: 'Erro ao conectar com IA',
+        description: 'Verifique sua conexão e tente novamente.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+      inputRef.current?.focus();
+    }
   };
 
   const handleQuickSuggestion = (suggestion: string) => {
@@ -97,12 +128,7 @@ export default function Chat() {
   };
 
   const handleNewChat = () => {
-    setMessages([{
-      id: Date.now().toString(),
-      role: 'assistant',
-      content: 'Olá! Eu sou o DigestAI, seu assistente especializado em saúde digestiva. 👋\n\nEstou aqui para ajudá-lo a entender melhor seu sistema digestivo, identificar possíveis intolerâncias alimentares e criar um plano alimentar personalizado.\n\nComo posso ajudá-lo hoje?',
-      timestamp: new Date().toISOString(),
-    }]);
+    newConversation();
   };
 
   const formatTime = (timestamp: string) => {
@@ -111,6 +137,19 @@ export default function Chat() {
       minute: '2-digit'
     });
   };
+
+  if (loadingConversation) {
+    return (
+      <AppLayout>
+        <div className="flex items-center justify-center h-[60vh]">
+          <div className="text-center">
+            <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
+            <p className="text-muted-foreground">Carregando conversa...</p>
+          </div>
+        </div>
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout>
@@ -149,13 +188,19 @@ export default function Chat() {
                 >
                   {/* Avatar */}
                   <div className={cn(
-                    "w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0",
+                    "w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden",
                     message.role === 'assistant' 
                       ? "bg-gradient-to-br from-primary to-secondary" 
                       : "bg-muted"
                   )}>
                     {message.role === 'assistant' ? (
                       <Sparkles className="w-4 h-4 text-white" />
+                    ) : user?.avatarUrl ? (
+                      <img 
+                        src={user.avatarUrl} 
+                        alt={user.fullName}
+                        className="w-full h-full object-cover"
+                      />
                     ) : (
                       <User className="w-4 h-4 text-muted-foreground" />
                     )}

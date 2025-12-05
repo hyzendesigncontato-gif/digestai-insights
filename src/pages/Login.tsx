@@ -71,8 +71,8 @@ export default function Login() {
       <div className="w-full max-w-md relative z-10">
         {/* Logo */}
         <div className="text-center mb-8 animate-fade-in">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-secondary shadow-xl mb-4">
-            <Sparkles className="w-8 h-8 text-white" />
+          <div className="inline-flex items-center justify-center mb-4">
+            <img src="/logo.png" alt="DigestAI" className="w-32 h-32 object-contain" />
           </div>
           <h1 className="text-3xl font-bold gradient-text">DigestAI</h1>
           <p className="text-muted-foreground mt-1">Sistema Intestinal Blindado</p>

@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useAuth } from '@/contexts/AuthContext';
-import { mockUserPreferences } from '@/data/mockData';
+import { useUserPreferences } from '@/hooks/useUserPreferences';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,32 +20,163 @@ import {
   Palette,
   Save,
   Camera,
-  Lock
+  Lock,
+  Loader2
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { uploadImage } from '@/lib/imgbb';
+import { supabase } from '@/lib/supabase';
 
 export default function Settings() {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const { toast } = useToast();
-  const [preferences, setPreferences] = useState(mockUserPreferences);
+  const { preferences, updatePreferences, isLoading: loadingPreferences } = useUserPreferences();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Profile form state
-  const [fullName, setFullName] = useState(user?.fullName || '');
-  const [email, setEmail] = useState(user?.email || '');
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState('');
+  const [birthDate, setBirthDate] = useState('');
+  const [gender, setGender] = useState('');
+  const [weight, setWeight] = useState('');
+  const [height, setHeight] = useState('');
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   
   // Password form state
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  const handleSaveProfile = () => {
-    toast({
-      title: 'Perfil atualizado! ✅',
-      description: 'Suas informações foram salvas com sucesso.',
-    });
+  // Dietary preferences state
+  const [dietaryRestrictions, setDietaryRestrictions] = useState<string[]>([]);
+  const [allergies, setAllergies] = useState('');
+
+  // Carrega dados do usuário
+  useEffect(() => {
+    if (user) {
+      setFullName(user.fullName || '');
+      setEmail(user.email || '');
+      setAvatarUrl(user.avatarUrl || '');
+      setBirthDate(user.birthDate || '');
+      setGender(user.gender || '');
+      setWeight(user.weight?.toString() || '');
+      setHeight(user.height?.toString() || '');
+    }
+  }, [user]);
+
+  // Carrega preferências
+  useEffect(() => {
+    if (preferences) {
+      setDietaryRestrictions(preferences.dietaryRestrictions);
+      setAllergies(preferences.allergies.join(', '));
+    }
+  }, [preferences]);
+
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
   };
 
-  const handleChangePassword = () => {
+  const handleAvatarChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validação de tamanho (2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      toast({
+        title: 'Arquivo muito grande',
+        description: 'A imagem deve ter no máximo 2MB.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Validação de tipo
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: 'Formato inválido',
+        description: 'Por favor, selecione uma imagem (JPG, PNG ou GIF).',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      setIsUploadingAvatar(true);
+      
+      toast({
+        title: 'Enviando imagem...',
+        description: 'Aguarde enquanto fazemos o upload.',
+      });
+
+      // Upload para ImgBB
+      const result = await uploadImage(file);
+      
+      if (result.error || !result.url) {
+        throw new Error(result.error || 'Erro ao fazer upload da imagem');
+      }
+      
+      // Atualiza o avatar no Supabase Auth (metadata do usuário)
+      const { error: updateError } = await supabase.auth.updateUser({
+        data: { avatar_url: result.url }
+      });
+
+      if (updateError) throw updateError;
+
+      setAvatarUrl(result.url);
+      
+      // Recarrega os dados do usuário para atualizar em todos os componentes
+      await refreshUser();
+      
+      toast({
+        title: 'Foto atualizada! ✅',
+        description: 'Sua foto de perfil foi alterada com sucesso.',
+      });
+    } catch (error) {
+      console.error('Error uploading avatar:', error);
+      toast({
+        title: 'Erro ao enviar foto',
+        description: error instanceof Error ? error.message : 'Não foi possível atualizar sua foto. Tente novamente.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsUploadingAvatar(false);
+    }
+  };
+
+  const handleSaveProfile = async () => {
+    try {
+      // Atualiza os dados do usuário no Supabase Auth
+      const { error } = await supabase.auth.updateUser({
+        email: email,
+        data: { 
+          full_name: fullName,
+          birth_date: birthDate,
+          gender: gender,
+          weight: weight ? parseFloat(weight) : null,
+          height: height ? parseInt(height) : null,
+        }
+      });
+
+      if (error) throw error;
+
+      await refreshUser();
+
+      toast({
+        title: 'Perfil atualizado! ✅',
+        description: 'Suas informações foram salvas com sucesso.',
+      });
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast({
+        title: 'Erro ao salvar',
+        description: 'Não foi possível atualizar seu perfil. Tente novamente.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleChangePassword = async () => {
     if (newPassword !== confirmPassword) {
       toast({
         title: 'Erro',
@@ -63,22 +194,106 @@ export default function Settings() {
       });
       return;
     }
-    
-    toast({
-      title: 'Senha alterada! ✅',
-      description: 'Sua senha foi atualizada com sucesso.',
-    });
-    
-    setCurrentPassword('');
-    setNewPassword('');
-    setConfirmPassword('');
+
+    try {
+      // Atualiza a senha no Supabase
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: 'Senha alterada! ✅',
+        description: 'Sua senha foi atualizada com sucesso.',
+      });
+      
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (error) {
+      console.error('Error changing password:', error);
+      toast({
+        title: 'Erro ao alterar senha',
+        description: error instanceof Error ? error.message : 'Não foi possível alterar sua senha. Tente novamente.',
+        variant: 'destructive',
+      });
+    }
   };
 
-  const handleSaveNotifications = () => {
-    toast({
-      title: 'Notificações atualizadas! ✅',
-      description: 'Suas preferências foram salvas.',
-    });
+  const handleSaveDietaryPreferences = async () => {
+    try {
+      const allergiesArray = allergies.split(',').map(a => a.trim()).filter(Boolean);
+      
+      const { success } = await updatePreferences({
+        dietaryRestrictions,
+        allergies: allergiesArray,
+      });
+
+      if (!success) throw new Error('Falha ao salvar');
+
+      toast({
+        title: 'Preferências salvas! ✅',
+        description: 'Suas preferências alimentares foram atualizadas.',
+      });
+    } catch (error) {
+      toast({
+        title: 'Erro ao salvar',
+        description: 'Não foi possível salvar suas preferências.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleSaveNotifications = async () => {
+    try {
+      const { success } = await updatePreferences({
+        notificationSettings: preferences.notificationSettings,
+        alertIntensity: preferences.alertIntensity,
+      });
+
+      if (!success) throw new Error('Falha ao salvar');
+
+      toast({
+        title: 'Notificações atualizadas! ✅',
+        description: 'Suas preferências foram salvas.',
+      });
+    } catch (error) {
+      toast({
+        title: 'Erro ao salvar',
+        description: 'Não foi possível salvar suas preferências.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleSaveAppearance = async () => {
+    try {
+      const { success } = await updatePreferences({
+        theme: preferences.theme,
+      });
+
+      if (!success) throw new Error('Falha ao salvar');
+
+      toast({
+        title: 'Aparência atualizada! ✅',
+        description: 'Suas preferências foram salvas.',
+      });
+    } catch (error) {
+      toast({
+        title: 'Erro ao salvar',
+        description: 'Não foi possível salvar suas preferências.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const toggleDietaryRestriction = (restriction: string) => {
+    setDietaryRestrictions(prev => 
+      prev.includes(restriction)
+        ? prev.filter(r => r !== restriction)
+        : [...prev, restriction]
+    );
   };
 
   return (
@@ -132,15 +347,36 @@ export default function Settings() {
                 {/* Avatar */}
                 <div className="flex items-center gap-6">
                   <Avatar className="w-24 h-24">
-                    <AvatarImage src={user?.avatarUrl} />
+                    <AvatarImage src={avatarUrl} />
                     <AvatarFallback className="text-2xl bg-gradient-to-br from-primary to-secondary text-white">
                       {user?.fullName.charAt(0)}
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <Button variant="outline" size="sm">
-                      <Camera className="w-4 h-4 mr-2" />
-                      Alterar foto
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleAvatarChange}
+                      className="hidden"
+                    />
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={handleAvatarClick}
+                      disabled={isUploadingAvatar}
+                    >
+                      {isUploadingAvatar ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Enviando...
+                        </>
+                      ) : (
+                        <>
+                          <Camera className="w-4 h-4 mr-2" />
+                          Alterar foto
+                        </>
+                      )}
                     </Button>
                     <p className="text-xs text-muted-foreground mt-2">
                       JPG, PNG ou GIF. Máximo 2MB.
@@ -178,14 +414,15 @@ export default function Settings() {
                     <Input
                       id="birthDate"
                       type="date"
-                      defaultValue={user?.birthDate}
+                      value={birthDate}
+                      onChange={(e) => setBirthDate(e.target.value)}
                       className="input-focus"
                     />
                   </div>
                   
                   <div className="space-y-2">
                     <Label htmlFor="gender">Gênero</Label>
-                    <Select defaultValue={user?.gender}>
+                    <Select value={gender} onValueChange={setGender}>
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione" />
                       </SelectTrigger>
@@ -202,7 +439,8 @@ export default function Settings() {
                     <Input
                       id="weight"
                       type="number"
-                      defaultValue={user?.weight}
+                      value={weight}
+                      onChange={(e) => setWeight(e.target.value)}
                       className="input-focus"
                     />
                   </div>
@@ -212,7 +450,8 @@ export default function Settings() {
                     <Input
                       id="height"
                       type="number"
-                      defaultValue={user?.height}
+                      value={height}
+                      onChange={(e) => setHeight(e.target.value)}
                       className="input-focus"
                     />
                   </div>
@@ -298,7 +537,11 @@ export default function Settings() {
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     {['Vegano', 'Vegetariano', 'Sem lactose', 'Sem glúten', 'Low FODMAP', 'Sem açúcar'].map((restriction) => (
                       <div key={restriction} className="flex items-center space-x-2">
-                        <Switch id={restriction} />
+                        <Switch 
+                          id={restriction}
+                          checked={dietaryRestrictions.includes(restriction)}
+                          onCheckedChange={() => toggleDietaryRestriction(restriction)}
+                        />
                         <Label htmlFor={restriction} className="text-sm font-normal cursor-pointer">
                           {restriction}
                         </Label>
@@ -314,6 +557,8 @@ export default function Settings() {
                   <Input
                     id="allergies"
                     placeholder="Ex: amendoim, frutos do mar..."
+                    value={allergies}
+                    onChange={(e) => setAllergies(e.target.value)}
                     className="input-focus"
                   />
                   <p className="text-xs text-muted-foreground">
@@ -321,7 +566,7 @@ export default function Settings() {
                   </p>
                 </div>
 
-                <Button variant="gradient">
+                <Button variant="gradient" onClick={handleSaveDietaryPreferences}>
                   <Save className="w-4 h-4 mr-2" />
                   Salvar preferências
                 </Button>
@@ -465,7 +710,7 @@ export default function Settings() {
                   </Select>
                 </div>
 
-                <Button variant="gradient">
+                <Button variant="gradient" onClick={handleSaveAppearance}>
                   <Save className="w-4 h-4 mr-2" />
                   Salvar aparência
                 </Button>

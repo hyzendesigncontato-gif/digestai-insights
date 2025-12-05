@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User } from '@/types';
-import { mockUser } from '@/data/mockData';
+import { supabase } from '@/lib/supabase';
+import type { User as SupabaseUser } from '@supabase/supabase-js';
 
 interface AuthContextType {
   user: User | null;
@@ -8,45 +9,121 @@ interface AuthContextType {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+// Converte usuário do Supabase para o formato do app
+function mapSupabaseUser(supabaseUser: SupabaseUser, profile?: any): User {
+  const metadata = supabaseUser.user_metadata || {};
+  return {
+    id: supabaseUser.id,
+    email: supabaseUser.email || '',
+    fullName: metadata.full_name || profile?.full_name || 'Usuário',
+    avatarUrl: metadata.avatar_url || profile?.avatar_url,
+    birthDate: metadata.birth_date || profile?.birth_date,
+    gender: metadata.gender || profile?.gender,
+    weight: metadata.weight || profile?.weight,
+    height: metadata.height || profile?.height,
+    createdAt: supabaseUser.created_at,
+    created_at: supabaseUser.created_at,
+  };
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check for stored session
-    const storedUser = localStorage.getItem('digestai_user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    setIsLoading(false);
+    // Verifica sessão atual
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        loadUserProfile(session.user);
+      } else {
+        setIsLoading(false);
+      }
+    });
+
+    // Escuta mudanças de autenticação
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        loadUserProfile(session.user);
+      } else {
+        setUser(null);
+        setIsLoading(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
+
+  const loadUserProfile = async (supabaseUser: SupabaseUser) => {
+    try {
+      // Busca profile do usuário
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', supabaseUser.id)
+        .single();
+
+      // Se não encontrou profile ou deu erro, usa só os dados do auth
+      if (error || !profile) {
+        console.log('Profile not found, using auth data only');
+        setUser(mapSupabaseUser(supabaseUser));
+      } else {
+        setUser(mapSupabaseUser(supabaseUser, profile));
+      }
+    } catch (error) {
+      console.error('Error loading profile:', error);
+      // Em caso de erro, usa só os dados do auth
+      setUser(mapSupabaseUser(supabaseUser));
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     setIsLoading(true);
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Mock validation - in production, this would be Supabase Auth
-    if (email && password.length >= 6) {
-      const userData = { ...mockUser, email };
-      setUser(userData);
-      localStorage.setItem('digestai_user', JSON.stringify(userData));
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        setIsLoading(false);
+        return { 
+          success: false, 
+          error: error.message === 'Invalid login credentials' 
+            ? 'Credenciais inválidas. Verifique seu e-mail e senha.' 
+            : error.message 
+        };
+      }
+
+      if (data.user) {
+        await loadUserProfile(data.user);
+      }
+
       setIsLoading(false);
       return { success: true };
+    } catch (error: any) {
+      setIsLoading(false);
+      return { success: false, error: error.message || 'Erro ao fazer login' };
     }
-    
-    setIsLoading(false);
-    return { success: false, error: 'Credenciais inválidas. Verifique seu e-mail e senha.' };
   };
 
-  const logout = () => {
+  const logout = async () => {
+    await supabase.auth.signOut();
     setUser(null);
-    localStorage.removeItem('digestai_user');
+  };
+
+  const refreshUser = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user) {
+      await loadUserProfile(session.user);
+    }
   };
 
   return (
@@ -57,6 +134,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isLoading,
         login,
         logout,
+        refreshUser,
       }}
     >
       {children}

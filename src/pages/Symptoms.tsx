@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { mockSymptoms, symptomTypeLabels } from '@/data/mockData';
+import { symptomTypeLabels } from '@/data/mockData';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,11 +19,13 @@ import {
   Filter,
   TrendingUp,
   AlertTriangle,
-  Search
+  Search,
+  Loader2
 } from 'lucide-react';
 import { Symptom, SymptomType } from '@/types';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { useSymptoms } from '@/hooks/useSymptoms';
 
 const symptomTypes: { value: SymptomType; label: string }[] = [
   { value: 'abdominal_pain', label: 'Dor Abdominal' },
@@ -39,10 +41,11 @@ const symptomTypes: { value: SymptomType; label: string }[] = [
 ];
 
 export default function Symptoms() {
-  const [symptoms, setSymptoms] = useState<Symptom[]>(mockSymptoms);
+  const { symptoms, isLoading, addSymptom } = useSymptoms();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterIntensity, setFilterIntensity] = useState<string>('all');
+  const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
 
   // Form state
@@ -52,7 +55,7 @@ export default function Symptoms() {
   const [duration, setDuration] = useState('');
   const [notes, setNotes] = useState('');
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (selectedTypes.length === 0) {
       toast({
         title: 'Erro',
@@ -62,18 +65,27 @@ export default function Symptoms() {
       return;
     }
 
-    const newSymptom: Symptom = {
-      id: Date.now().toString(),
-      userId: '1',
+    setIsSaving(true);
+
+    const { data, error } = await addSymptom({
       types: selectedTypes,
       intensity: intensity[0],
       datetime: datetime || new Date().toISOString(),
-      duration,
-      notes,
-      createdAt: new Date().toISOString(),
-    };
+      duration: duration || undefined,
+      notes: notes || undefined,
+    });
 
-    setSymptoms([newSymptom, ...symptoms]);
+    setIsSaving(false);
+
+    if (error) {
+      console.error('Erro completo:', error);
+      toast({
+        title: 'Erro ao salvar',
+        description: error.message || 'Não foi possível salvar o sintoma. Tente novamente.',
+        variant: 'destructive',
+      });
+      return;
+    }
     
     // Reset form
     setSelectedTypes([]);
@@ -259,8 +271,15 @@ export default function Symptoms() {
                   <Button variant="outline" className="flex-1" onClick={() => setIsDialogOpen(false)}>
                     Cancelar
                   </Button>
-                  <Button variant="gradient" className="flex-1" onClick={handleSubmit}>
-                    Salvar Sintoma
+                  <Button variant="gradient" className="flex-1" onClick={handleSubmit} disabled={isSaving}>
+                    {isSaving ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Salvando...
+                      </>
+                    ) : (
+                      'Salvar Sintoma'
+                    )}
                   </Button>
                 </div>
               </div>
@@ -346,7 +365,14 @@ export default function Symptoms() {
 
         {/* Symptoms List */}
         <div className="space-y-4">
-          {filteredSymptoms.length === 0 ? (
+          {isLoading ? (
+            <Card className="animate-fade-in">
+              <CardContent className="py-12 text-center">
+                <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
+                <p className="text-muted-foreground">Carregando sintomas...</p>
+              </CardContent>
+            </Card>
+          ) : filteredSymptoms.length === 0 ? (
             <Card className="animate-fade-in">
               <CardContent className="py-12 text-center">
                 <Activity className="w-12 h-12 text-muted-foreground mx-auto mb-4" />

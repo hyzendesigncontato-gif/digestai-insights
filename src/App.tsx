@@ -12,6 +12,7 @@ import Chat from "./pages/Chat";
 import Reports from "./pages/Reports";
 import Symptoms from "./pages/Symptoms";
 import Foods from "./pages/Foods";
+import FoodLog from "./pages/FoodLog";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
@@ -89,6 +90,11 @@ function AppRoutes() {
       <Route path="/foods" element={
         <ProtectedRoute>
           <Foods />
+        </ProtectedRoute>
+      } />
+      <Route path="/food-log" element={
+        <ProtectedRoute>
+          <FoodLog />
         </ProtectedRoute>
       } />
       <Route path="/settings" element={

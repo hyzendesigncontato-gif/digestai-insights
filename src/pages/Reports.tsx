@@ -1,5 +1,4 @@
 import { AppLayout } from '@/components/layout/AppLayout';
-import { mockReports } from '@/data/mockData';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -15,12 +14,18 @@ import {
   Clock,
   TrendingUp,
   Utensils,
-  Pill
+  Pill,
+  Loader2,
+  Plus
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useReports } from '@/hooks/useReports';
+import { useToast } from '@/hooks/use-toast';
 
 export default function Reports() {
-  const report = mockReports[0];
+  const { reports, isLoading, generateReport } = useReports();
+  const { toast } = useToast();
+  const report = reports[0];
 
   const getScoreColor = (score: number) => {
     if (score <= 30) return 'text-success';
@@ -39,6 +44,176 @@ export default function Reports() {
     if (prob >= 40) return 'bg-warning/10 text-warning border-warning/20';
     return 'bg-success/10 text-success border-success/20';
   };
+
+  const handleGenerateReport = async () => {
+    toast({
+      title: 'Gerando relatório...',
+      description: 'Isso pode levar alguns segundos.',
+    });
+
+    const { error } = await generateReport(30);
+
+    if (error) {
+      toast({
+        title: 'Erro ao gerar relatório',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } else {
+      toast({
+        title: 'Relatório gerado! ✅',
+        description: 'Seu novo relatório está disponível.',
+      });
+    }
+  };
+
+  const handleDownloadPDF = () => {
+    if (!report) return;
+
+    // Cria o conteúdo HTML do relatório
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>Relatório DigestAI</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; }
+          h1 { color: #6366f1; border-bottom: 3px solid #6366f1; padding-bottom: 10px; }
+          h2 { color: #4f46e5; margin-top: 30px; }
+          .header { text-align: center; margin-bottom: 40px; }
+          .score { font-size: 48px; font-weight: bold; text-align: center; margin: 20px 0; }
+          .score.low { color: #10b981; }
+          .score.medium { color: #f59e0b; }
+          .score.high { color: #ef4444; }
+          .section { margin: 30px 0; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px; }
+          .intolerance { margin: 20px 0; padding: 15px; background: #f9fafb; border-radius: 8px; }
+          .badge { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 12px; margin: 4px; }
+          .badge-high { background: #fee2e2; color: #991b1b; }
+          .badge-medium { background: #fef3c7; color: #92400e; }
+          .badge-low { background: #d1fae5; color: #065f46; }
+          .footer { margin-top: 40px; padding-top: 20px; border-top: 2px solid #e5e7eb; text-align: center; color: #6b7280; font-size: 12px; }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>🩺 DigestAI - Relatório de Análise</h1>
+          <p>Período: ${new Date(report.periodStart).toLocaleDateString('pt-BR')} - ${new Date(report.periodEnd).toLocaleDateString('pt-BR')}</p>
+          <p>Gerado em: ${new Date(report.createdAt).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+        </div>
+
+        <div class="section">
+          <h2>Score de Risco</h2>
+          <div class="score ${report.riskScore <= 30 ? 'low' : report.riskScore <= 60 ? 'medium' : 'high'}">
+            ${report.riskScore}%
+          </div>
+          <p style="text-align: center; font-weight: bold;">
+            ${getScoreLabel(report.riskScore)}
+          </p>
+        </div>
+
+        <div class="section">
+          <h2>Resumo Executivo</h2>
+          <p>${report.summary}</p>
+        </div>
+
+        <div class="section">
+          <h2>Análise de Intolerâncias</h2>
+          ${report.intolerances.map(intolerance => `
+            <div class="intolerance">
+              <h3>
+                <span class="badge ${intolerance.probability >= 70 ? 'badge-high' : intolerance.probability >= 40 ? 'badge-medium' : 'badge-low'}">
+                  ${intolerance.probability}%
+                </span>
+                Intolerância à ${intolerance.type}
+              </h3>
+              <p><strong>Sintomas Correlacionados:</strong> ${intolerance.correlatedSymptoms.join(', ')}</p>
+              <p><strong>Alimentos Identificados:</strong> ${intolerance.correlatedFoods.join(', ')}</p>
+            </div>
+          `).join('')}
+        </div>
+
+        <div class="section">
+          <h2>Recomendações Personalizadas</h2>
+          <ol>
+            <li><strong>Período de Eliminação:</strong> Recomenda-se um período de 2-4 semanas eliminando completamente os alimentos identificados para confirmar as intolerâncias.</li>
+            <li><strong>Diário Alimentar Detalhado:</strong> Continue registrando todos os alimentos consumidos e sintomas para melhorar a precisão das análises futuras.</li>
+            <li><strong>Consulta Médica:</strong> Considere agendar uma consulta com um gastroenterologista para confirmar os diagnósticos e receber orientação profissional.</li>
+            <li><strong>Substitutos Alimentares:</strong> Explore alternativas saudáveis para manter uma dieta equilibrada.</li>
+          </ol>
+        </div>
+
+        <div class="footer">
+          <p><strong>Aviso:</strong> Este relatório é informativo e não substitui uma consulta médica profissional.</p>
+          <p>Para diagnósticos definitivos e tratamentos, consulte um gastroenterologista.</p>
+        </div>
+      </body>
+      </html>
+    `;
+
+    // Cria um blob e faz o download
+    const blob = new Blob([htmlContent], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `relatorio-digestai-${new Date(report.createdAt).toLocaleDateString('pt-BR').replace(/\//g, '-')}.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    toast({
+      title: 'Download iniciado! 📥',
+      description: 'Seu relatório foi baixado em formato HTML.',
+    });
+  };
+
+  if (isLoading) {
+    return (
+      <AppLayout>
+        <div className="flex items-center justify-center h-[60vh]">
+          <div className="text-center">
+            <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
+            <p className="text-muted-foreground">Carregando relatórios...</p>
+          </div>
+        </div>
+      </AppLayout>
+    );
+  }
+
+  if (!report) {
+    return (
+      <AppLayout>
+        <div className="space-y-6">
+          <div className="flex flex-col gap-4 animate-fade-in">
+            <div>
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold flex items-center gap-2 sm:gap-3">
+                <FileText className="w-6 h-6 sm:w-8 sm:h-8 text-primary flex-shrink-0" />
+                Relatórios
+              </h1>
+              <p className="text-muted-foreground mt-1 text-sm sm:text-base">
+                Análises detalhadas da sua saúde digestiva
+              </p>
+            </div>
+          </div>
+
+          <Card>
+            <CardContent className="py-12 text-center">
+              <FileText className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2">Nenhum relatório gerado</h3>
+              <p className="text-muted-foreground mb-6">
+                Registre sintomas e alimentos para gerar seu primeiro relatório
+              </p>
+              <Button variant="gradient" onClick={handleGenerateReport}>
+                <Plus className="w-4 h-4 mr-2" />
+                Gerar Primeiro Relatório
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout>
@@ -60,7 +235,7 @@ export default function Reports() {
               <Share2 className="w-4 h-4 sm:mr-2" />
               <span className="hidden sm:inline">Compartilhar</span>
             </Button>
-            <Button variant="gradient" size="sm" className="flex-1 sm:flex-none">
+            <Button variant="gradient" size="sm" className="flex-1 sm:flex-none" onClick={handleDownloadPDF}>
               <Download className="w-4 h-4 sm:mr-2" />
               <span className="hidden sm:inline">Baixar</span> PDF
             </Button>
