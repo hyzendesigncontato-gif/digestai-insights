@@ -4,7 +4,7 @@
 -- ============================================
 
 -- Habilita RLS em todas as tabelas
-ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE symptoms ENABLE ROW LEVEL SECURITY;
 ALTER TABLE food_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_food_status ENABLE ROW LEVEL SECURITY;
@@ -16,14 +16,18 @@ ALTER TABLE ai_insights ENABLE ROW LEVEL SECURITY;
 ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
 
 -- ============================================
--- POLICIES: users
+-- POLICIES: profiles
 -- ============================================
 CREATE POLICY "Users can view own profile"
-  ON users FOR SELECT
+  ON profiles FOR SELECT
   USING (auth.uid() = id);
 
+CREATE POLICY "Users can insert own profile"
+  ON profiles FOR INSERT
+  WITH CHECK (auth.uid() = id);
+
 CREATE POLICY "Users can update own profile"
-  ON users FOR UPDATE
+  ON profiles FOR UPDATE
   USING (auth.uid() = id);
 
 -- ============================================
