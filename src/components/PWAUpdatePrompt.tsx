@@ -1,9 +1,52 @@
-import { usePWA } from '@/hooks/usePWA';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, X, Wifi, WifiOff } from 'lucide-react';
+import { RefreshCw, X, WifiOff } from 'lucide-react';
 
 export const PWAUpdatePrompt = () => {
-  const { offlineReady, needRefresh, updateApp, closePrompt } = usePWA();
+  const [offlineReady, setOfflineReady] = useState(false);
+  const [needRefresh, setNeedRefresh] = useState(false);
+
+  useEffect(() => {
+    // Registrar service worker manualmente
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').then(
+        (registration) => {
+          console.log('Service Worker registrado:', registration);
+          setOfflineReady(true);
+
+          // Verificar atualizações
+          registration.addEventListener('updatefound', () => {
+            const newWorker = registration.installing;
+            if (newWorker) {
+              newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  setNeedRefresh(true);
+                }
+              });
+            }
+          });
+        },
+        (error) => {
+          console.error('Erro ao registrar Service Worker:', error);
+        }
+      );
+    }
+  }, []);
+
+  const updateApp = () => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistration().then((registration) => {
+        registration?.waiting?.postMessage({ type: 'SKIP_WAITING' });
+        window.location.reload();
+      });
+    }
+    setNeedRefresh(false);
+  };
+
+  const closePrompt = () => {
+    setOfflineReady(false);
+    setNeedRefresh(false);
+  };
 
   if (!offlineReady && !needRefresh) return null;
 
@@ -18,7 +61,7 @@ export const PWAUpdatePrompt = () => {
           <X className="h-4 w-4" />
         </button>
 
-        {offlineReady && (
+        {offlineReady && !needRefresh && (
           <div className="flex items-start gap-3 pr-6">
             <div className="bg-green-100 dark:bg-green-900/20 p-2 rounded-lg">
               <WifiOff className="h-5 w-5 text-green-600 dark:text-green-400" />
