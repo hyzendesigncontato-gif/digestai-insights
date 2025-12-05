@@ -24,13 +24,16 @@ export function useConversations() {
   }, [user]);
 
   const initializeConversation = async () => {
+    if (!user?.id) return;
+    
     try {
       setIsLoading(true);
 
-      // Busca a conversa mais recente
+      // Busca a conversa mais recente do usuário
       const { data: conversations, error: convError } = await supabase
         .from('conversations')
         .select('id')
+        .eq('user_id', user.id)
         .order('updated_at', { ascending: false })
         .limit(1);
 
@@ -44,7 +47,10 @@ export function useConversations() {
         // Cria nova conversa
         const { data: newConv, error: createError } = await supabase
           .from('conversations')
-          .insert([{ title: 'Nova conversa' }])
+          .insert([{ 
+            user_id: user.id,
+            title: 'Nova conversa' 
+          }])
           .select()
           .single();
 
@@ -123,10 +129,15 @@ export function useConversations() {
   };
 
   const newConversation = async () => {
+    if (!user?.id) return;
+    
     try {
       const { data, error } = await supabase
         .from('conversations')
-        .insert([{ title: 'Nova conversa' }])
+        .insert([{ 
+          user_id: user.id,
+          title: 'Nova conversa' 
+        }])
         .select()
         .single();
 
