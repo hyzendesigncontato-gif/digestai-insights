@@ -1,36 +1,48 @@
 import { useEffect, useState } from 'react';
-import { useRegisterSW } from 'virtual:pwa-register/react';
 
 export const usePWA = () => {
+  const [offlineReady, setOfflineReady] = useState(false);
   const [needRefresh, setNeedRefresh] = useState(false);
 
-  const {
-    offlineReady: [offlineReady, setOfflineReady],
-    needRefresh: [needRefreshState, setNeedRefreshState],
-    updateServiceWorker,
-  } = useRegisterSW({
-    onRegistered(r) {
-      console.log('Service Worker registrado:', r);
-    },
-    onRegisterError(error) {
-      console.error('Erro ao registrar Service Worker:', error);
-    },
-  });
-
   useEffect(() => {
-    if (needRefreshState) {
-      setNeedRefresh(true);
+    // Registrar service worker manualmente
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').then(
+        (registration) => {
+          console.log('Service Worker registrado:', registration);
+          setOfflineReady(true);
+
+          // Verificar atualizações
+          registration.addEventListener('updatefound', () => {
+            const newWorker = registration.installing;
+            if (newWorker) {
+              newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  setNeedRefresh(true);
+                }
+              });
+            }
+          });
+        },
+        (error) => {
+          console.error('Erro ao registrar Service Worker:', error);
+        }
+      );
     }
-  }, [needRefreshState]);
+  }, []);
 
   const updateApp = () => {
-    updateServiceWorker(true);
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistration().then((registration) => {
+        registration?.waiting?.postMessage({ type: 'SKIP_WAITING' });
+        window.location.reload();
+      });
+    }
     setNeedRefresh(false);
   };
 
   const closePrompt = () => {
     setOfflineReady(false);
-    setNeedRefreshState(false);
     setNeedRefresh(false);
   };
 
