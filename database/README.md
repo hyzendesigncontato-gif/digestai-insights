@@ -455,3 +455,46 @@ ANALYZE;
 ## 📞 Suporte
 
 Para questões sobre o banco de dados, consulte a documentação do projeto principal ou abra uma issue no repositório.
+
+
+## ⚠️ IMPORTANTE: Row Level Security (RLS)
+
+### Configuração Obrigatória para Supabase
+
+O arquivo `rls-policies.sql` contém as políticas de segurança **OBRIGATÓRIAS** para o funcionamento correto do sistema no Supabase.
+
+**Execute no SQL Editor do Supabase:**
+
+```bash
+# Ordem de execução:
+1. schema.sql          # Cria as tabelas
+2. rls-policies.sql    # ⚠️ OBRIGATÓRIO - Configura segurança
+3. functions.sql       # Cria funções
+4. views.sql          # Cria views
+5. seed.sql           # Dados de teste (opcional)
+```
+
+### Verificar se RLS está ativo
+
+```sql
+-- Verificar se RLS está habilitado nas tabelas
+SELECT tablename, rowsecurity 
+FROM pg_tables 
+WHERE schemaname = 'public' 
+AND tablename IN ('conversations', 'messages', 'symptoms', 'food_logs');
+
+-- Listar políticas criadas
+SELECT schemaname, tablename, policyname 
+FROM pg_policies 
+WHERE schemaname = 'public'
+ORDER BY tablename, policyname;
+```
+
+### Sintomas de RLS não configurado
+
+Se você ver erros como:
+- `403 Forbidden`
+- `new row violates row-level security policy`
+- `Error initializing conversation`
+
+**Solução:** Execute o arquivo `rls-policies.sql` no SQL Editor do Supabase.
